@@ -109,3 +109,9 @@ xml定义一个Bean，只有id和类名，其他啥也没有：
     }
 ```
 可见，通过这个基本的BeanFactory实现，就能完成最基本的组件管理功能，但离完全意义的IOC还差很远
+
+# Chapter Two
+- 在之前的基础上增加了XmlBeanDefinitionReader对xml配置文件进行统一读取
+- 让DefaultBeanFactory实现BeanDefinitionRegister接口进行BeanDefinition注册
+- 增加ApplicationContext接口及多个针对不同资源获取方式的实现类，实现对ClassLoader的读取
+- 增加Resource接口，对不同资源（Classpath或者filesystem）进行输入流获取
