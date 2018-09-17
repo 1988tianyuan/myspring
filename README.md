@@ -115,3 +115,6 @@ xml定义一个Bean，只有id和类名，其他啥也没有：
 - 让DefaultBeanFactory实现BeanDefinitionRegister接口进行BeanDefinition注册
 - 增加ApplicationContext接口及多个针对不同资源获取方式的实现类，实现对ClassLoader的读取
 - 增加Resource接口，对不同资源（Classpath或者filesystem）进行输入流获取
+
+当前项目类图如下：
+![image](https://raw.githubusercontent.com/1988tianyuan/myspring/master/images/BeanFactory(%E4%B8%8B)%20-%20%E7%B1%BB%E5%9B%BE.jpg)
