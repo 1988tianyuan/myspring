@@ -1,12 +1,17 @@
 package com.liugeng.myspring.beans.factory.support;
 
 import com.liugeng.myspring.beans.BeanDefinition;
+import com.liugeng.myspring.beans.PropertyValue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GenericBeanDefinition implements BeanDefinition {
 
     private String id;
     private String beanClassName;
     private String scope = SCOPE_DEFAULT;
+    private List<PropertyValue> propertyValues = new ArrayList<PropertyValue>();
 
     public GenericBeanDefinition(String id, String beanClassName) {
         this.id = id;
@@ -36,5 +41,10 @@ public class GenericBeanDefinition implements BeanDefinition {
     @Override
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    @Override
+    public List<PropertyValue> getPropertyValues() {
+        return propertyValues;
     }
 }

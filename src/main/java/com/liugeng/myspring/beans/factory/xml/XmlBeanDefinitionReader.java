@@ -1,29 +1,42 @@
 package com.liugeng.myspring.beans.factory.xml;
 
 import com.liugeng.myspring.beans.BeanDefinition;
+import com.liugeng.myspring.beans.PropertyValue;
 import com.liugeng.myspring.beans.factory.BeanDefinitionStoreException;
+import com.liugeng.myspring.beans.factory.config.RuntimeBeanReference;
+import com.liugeng.myspring.beans.factory.config.TypeStringValue;
 import com.liugeng.myspring.beans.factory.support.BeanDefinitionRegister;
 import com.liugeng.myspring.beans.factory.support.GenericBeanDefinition;
 import com.liugeng.myspring.core.io.Resource;
-import com.liugeng.myspring.util.ClassUtils;
+import com.liugeng.myspring.util.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import javax.print.attribute.standard.NumberUp;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 public class XmlBeanDefinitionReader {
     private static final String ID_ATTRIBUTE = "id";
     private static final String CLASS_ATTRIBUTE = "class";
     private static final String SCOPE_ATTRIBUTE = "scope";
+    private static final String PROPERTY_ELEMENT = "property";
+    private static final String REF_ATTRIBUTE ="ref";
+    private static final String VALUE_ATTRIBUTE = "value";
+    private static final String NAME_ATTRIBUTE = "name";
     private BeanDefinitionRegister register;
 
     public XmlBeanDefinitionReader(BeanDefinitionRegister register) {
         this.register = register;
     }
+
+    protected final Log logger = LogFactory.getLog(XmlBeanDefinitionReader.class);
 
     /**
      * 通过xml配置文件解析BeanDefinition
@@ -41,7 +54,10 @@ public class XmlBeanDefinitionReader {
                 String beanClassName = element.attributeValue(CLASS_ATTRIBUTE);
                 String scope = element.attributeValue(SCOPE_ATTRIBUTE);
                 BeanDefinition bd = new GenericBeanDefinition(id, beanClassName);
-                if(scope != null) bd.setScope(scope);   //读取scope属性并存入beanDefinition中
+                if(scope != null) {
+                    bd.setScope(scope);
+                }   //读取scope属性并存入beanDefinition中
+                parsePropertyValue(element, bd);
                 register.registerBeanDefinition(id, bd);
             }
         } catch (Exception e) {
@@ -54,6 +70,43 @@ public class XmlBeanDefinitionReader {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    //解析当前Element节点下面的property子节点，处理两种不同的propertyValue类型：ref和StringValue
+    public void parsePropertyValue(Element element, BeanDefinition beanDefinition) throws Exception{
+        Iterator iterator = element.elementIterator(PROPERTY_ELEMENT);
+        while (iterator.hasNext()){
+            Element propElement = (Element) iterator.next();
+            String propName = propElement.attributeValue(NAME_ATTRIBUTE);
+
+            if(!StringUtils.hasText(propName)){
+                logger.fatal("property name must not be null");
+            }
+
+            Object propValue = parsePropertyValue(propElement, beanDefinition, propName);
+            PropertyValue property = new PropertyValue(propName, propValue);
+            beanDefinition.getPropertyValues().add(property);
+        }
+    }
+
+    //解析property节点，处理两种不同的propertyValue类型：ref和StringValue
+    private Object parsePropertyValue (Element propElement, BeanDefinition beanDefinition, String propName) throws Exception{
+        String elementName = propName != null ? "<property> element for property '" + propName + "'" : "<constructor-arg> element";
+        boolean hasRefAttribute = propElement.attribute(REF_ATTRIBUTE) != null;
+        boolean hasValueAttribute = propElement.attribute(VALUE_ATTRIBUTE) != null;
+
+        if(hasRefAttribute){
+            String refName = propElement.attributeValue(REF_ATTRIBUTE);
+            if(StringUtils.hasText(refName)){
+                logger.fatal(elementName + " contains empty 'ref' attribute");
+            }
+            return new RuntimeBeanReference(refName);
+        } else if (hasValueAttribute){
+            String value = propElement.attributeValue(VALUE_ATTRIBUTE);
+            return new TypeStringValue(value);
+        } else {
+            throw new Exception(elementName + " must specify a ref or value");
         }
     }
 
