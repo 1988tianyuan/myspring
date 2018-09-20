@@ -1,6 +1,7 @@
 package com.liugeng.myspring.beans.factory.support;
 
 import com.liugeng.myspring.beans.BeanDefinition;
+import com.liugeng.myspring.beans.PropertyValue;
 import com.liugeng.myspring.beans.factory.BeanCreationException;
 import com.liugeng.myspring.beans.factory.BeanDefinitionStoreException;
 import com.liugeng.myspring.beans.factory.BeanFactory;
@@ -11,10 +12,14 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,6 +75,50 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
      * @return
      */
     private Object createBean(BeanDefinition bd) {
+        //初始化bean对象
+        Object bean = instantiateBean(bd);
+        //进行bean的依赖注入
+        populateBean(bd, bean);
+        return bean;
+    }
+
+    /**
+     * 进行依赖注入（setter注入）
+     * @param bd
+     * @param bean
+     */
+    protected void populateBean(BeanDefinition bd, Object bean) {
+        List<PropertyValue> propertyValues = bd.getPropertyValues();
+        if(propertyValues == null || propertyValues.isEmpty()){
+            return;
+        }
+        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this);
+        try {
+            for(PropertyValue pv : propertyValues){
+                String propertyName = pv.getName();
+                Object originalValue = pv.getValue();
+                Object resolvedValue = resolver.resolveValueIfNecessary(originalValue);
+                //使用JDK的Introspector对bean的每个property实现setter注入
+                BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+                PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
+                for(PropertyDescriptor descriptor : descriptors){
+                    if(descriptor.getName().equals(propertyName)){
+                        //实质上就是调用bean的setter方法
+                        descriptor.getWriteMethod().invoke(bean, resolvedValue);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new BeanCreationException("Failed to obtain BeanInfo for class [" + bd.getBeanClassName() + "]");
+        }
+    }
+
+    /**
+     * 初始化实例bean，但还未依赖注入
+     * @param bd
+     * @return
+     */
+    private Object instantiateBean(BeanDefinition bd){
         String beanClassName = bd.getBeanClassName();
         try {
             ClassLoader cl = getBeanClassLoader();
@@ -79,6 +128,8 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
             throw new BeanCreationException("create bean for name: " + beanClassName + " failed, ", e);
         }
     }
+
+
 
     @Override
     public void setBeanClassLoader(ClassLoader classloader) {

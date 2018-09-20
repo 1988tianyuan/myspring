@@ -83,7 +83,9 @@ public class XmlBeanDefinitionReader {
             if(!StringUtils.hasText(propName)){
                 logger.fatal("property name must not be null");
             }
-
+            // 通过属性name，构造一个PropertyValue，放入当前beanDefinition中
+            // 其中实际保存的value值要么是RuntimeBeanReference，对应某个Bean
+            // 要么是TypeStringValue，对应一个具体的String值
             Object propValue = parsePropertyValue(propElement, beanDefinition, propName);
             PropertyValue property = new PropertyValue(propName, propValue);
             beanDefinition.getPropertyValues().add(property);
