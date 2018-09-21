@@ -1,8 +1,14 @@
 package com.liugeng.myspring.beans.propertyediors;
 
+import com.liugeng.myspring.util.NumberUtils;
+import com.liugeng.myspring.util.StringUtils;
+
 import java.beans.PropertyEditorSupport;
 import java.text.NumberFormat;
 
+/**
+ * 用于将字符串转换为指定的Number类型
+ */
 public class CustomNumberEditor extends PropertyEditorSupport{
     private final Class<? extends Number> numberClass;
     private final NumberFormat numberFormat;
@@ -22,12 +28,14 @@ public class CustomNumberEditor extends PropertyEditorSupport{
     }
 
     @Override
-    public Object getValue() {
-        return super.getValue();
+    public void setAsText(String text) throws IllegalArgumentException {
+        if(this.allowEmpty && !StringUtils.hasText(text)){
+            this.setValue(null);
+        } else if (this.numberFormat != null){
+            this.setValue(NumberUtils.parseNumber(text, this.numberClass, this.numberFormat));
+        } else {
+            this.setValue(NumberUtils.parseNumber(text, this.numberClass));
+        }
     }
 
-    @Override
-    public void setAsText(String text) throws IllegalArgumentException {
-        super.setAsText(text);
-    }
 }

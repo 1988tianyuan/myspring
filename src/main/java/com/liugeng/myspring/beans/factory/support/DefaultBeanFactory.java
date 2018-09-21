@@ -2,6 +2,8 @@ package com.liugeng.myspring.beans.factory.support;
 
 import com.liugeng.myspring.beans.BeanDefinition;
 import com.liugeng.myspring.beans.PropertyValue;
+import com.liugeng.myspring.beans.SimpleTypeConverter;
+import com.liugeng.myspring.beans.TypeConverter;
 import com.liugeng.myspring.beans.factory.BeanCreationException;
 import com.liugeng.myspring.beans.factory.BeanDefinitionStoreException;
 import com.liugeng.myspring.beans.factory.BeanFactory;
@@ -49,7 +51,7 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
     }
 
     /**
-     * 通过组件id获取组件实例，如果是singleton则S生成一个实例放入singleton列表
+     * 通过组件id获取组件实例，如果是singleton则生成一个实例放入singleton列表
      * @param beanId
      * @return
      */
@@ -93,6 +95,7 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
             return;
         }
         BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this);
+        TypeConverter converter = new SimpleTypeConverter();
         try {
             for(PropertyValue pv : propertyValues){
                 String propertyName = pv.getName();
@@ -103,8 +106,11 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
                 PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
                 for(PropertyDescriptor descriptor : descriptors){
                     if(descriptor.getName().equals(propertyName)){
+                        Object convertedValue = resolvedValue instanceof String ?
+                        converter.convertIfNecessary(resolvedValue, descriptor.getPropertyType()) : resolvedValue;
                         //实质上就是调用bean的setter方法
-                        descriptor.getWriteMethod().invoke(bean, resolvedValue);
+                        descriptor.getWriteMethod().invoke(bean, convertedValue);
+                        break;
                     }
                 }
             }

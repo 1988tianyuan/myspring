@@ -19,6 +19,7 @@ public class CustomNumberEditorTest {
 
         try {
             editor.setAsText("3.1");
+            editor.setAsText("3daqf");
         } catch (IllegalArgumentException e) {
             return;
         }

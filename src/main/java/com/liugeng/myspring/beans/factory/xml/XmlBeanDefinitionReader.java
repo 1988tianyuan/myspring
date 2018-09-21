@@ -41,10 +41,11 @@ public class XmlBeanDefinitionReader {
     /**
      * 通过xml配置文件解析BeanDefinition
      */
-    public void loadBeanDefinition(Resource resource) throws FileNotFoundException {
-        InputStream is = resource.getInputStream();
-        SAXReader reader = new SAXReader();
+    public void loadBeanDefinition(Resource resource) throws RuntimeException {
+        InputStream is = null;
         try {
+            is = resource.getInputStream();
+            SAXReader reader = new SAXReader();
             Document doc = reader.read(is);
             Element root = doc.getRootElement();    //获取根元素（也就是beans列表）
             Iterator<Element> iter = root.elementIterator();

@@ -35,7 +35,7 @@ public class BeanDefinitionTestV2 {
 
         List<PropertyValue> propertyValueList = beanDefinition.getPropertyValues();
 
-        Assert.assertTrue(propertyValueList.size() == 3);
+        Assert.assertTrue(propertyValueList.size() == 4);
 
         PropertyValue propertyValue1 = this.getPropertyValue(propertyValueList, "accountDao");
         Assert.assertNotNull(propertyValue1);

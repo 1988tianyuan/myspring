@@ -66,7 +66,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void testInvalidBeanDefinition() throws FileNotFoundException {
+    public void testInvalidBeanDefinition() {
         try {
             Resource resource = new ClassPathXmlResource(paths.getProperty("classpath1"));
             reader.loadBeanDefinition(resource);
