@@ -1,6 +1,8 @@
 package com.liugeng.myspring.test.v2;
 
 
+import com.liugeng.myspring.beans.SimpleTypeConverter;
+import com.liugeng.myspring.beans.TypeConverter;
 import com.liugeng.myspring.beans.factory.config.RuntimeBeanReference;
 import com.liugeng.myspring.beans.factory.config.TypeStringValue;
 import com.liugeng.myspring.beans.factory.support.BeanDefinitionValueResolver;
@@ -33,9 +35,10 @@ public class BeanDefinitionValueResolverTest {
         reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
 
         //将BeanFactory装载到resolver中，使其可以将某个PropertyValue的value引用直接转换为具体的Bean引用
-        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(factory);
+        TypeConverter converter = new SimpleTypeConverter();
+        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(factory, converter);
         RuntimeBeanReference reference = new RuntimeBeanReference("accountDao");
-        Object value = resolver.resolveValueIfNecessary(reference);
+        Object value = resolver.resolveValueIfNecessary(reference, AccountDao.class);
         Assert.assertNotNull(value);
         Assert.assertTrue(value instanceof AccountDao);
     }
@@ -46,9 +49,10 @@ public class BeanDefinitionValueResolverTest {
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
         reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
 
-        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(factory);
+        TypeConverter converter = new SimpleTypeConverter();
+        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(factory, converter);
         TypeStringValue stringValue = new TypeStringValue("test");
-        Object value = resolver.resolveValueIfNecessary(stringValue);
+        Object value = resolver.resolveValueIfNecessary(stringValue, String.class);
         Assert.assertNotNull(value);
         Assert.assertTrue("test".equals(value));
     }

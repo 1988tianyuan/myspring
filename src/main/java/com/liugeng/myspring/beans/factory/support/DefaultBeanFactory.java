@@ -94,22 +94,20 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
         if(propertyValues == null || propertyValues.isEmpty()){
             return;
         }
-        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this);
         TypeConverter converter = new SimpleTypeConverter();
+        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this, converter);
         try {
+            //使用JDK的Introspector对bean的每个property实现setter注入
+            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+            PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
             for(PropertyValue pv : propertyValues){
                 String propertyName = pv.getName();
                 Object originalValue = pv.getValue();
-                Object resolvedValue = resolver.resolveValueIfNecessary(originalValue);
-                //使用JDK的Introspector对bean的每个property实现setter注入
-                BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
-                PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
                 for(PropertyDescriptor descriptor : descriptors){
                     if(descriptor.getName().equals(propertyName)){
-                        Object convertedValue = resolvedValue instanceof String ?
-                        converter.convertIfNecessary(resolvedValue, descriptor.getPropertyType()) : resolvedValue;
+                        Object resolvedValue = resolver.resolveValueIfNecessary(originalValue, descriptor.getPropertyType());
                         //实质上就是调用bean的setter方法
-                        descriptor.getWriteMethod().invoke(bean, convertedValue);
+                        descriptor.getWriteMethod().invoke(bean, resolvedValue);
                         break;
                     }
                 }
