@@ -95,7 +95,7 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
             return;
         }
         TypeConverter converter = new SimpleTypeConverter();
-        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this, converter);
+        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this);
         try {
             //使用JDK的Introspector对bean的每个property实现setter注入
             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
@@ -103,11 +103,14 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
             for(PropertyValue pv : propertyValues){
                 String propertyName = pv.getName();
                 Object originalValue = pv.getValue();
+                //得到解析后的值，具体引用或者原始String
+                Object resolvedValue = resolver.resolveValueIfNecessary(originalValue);
                 for(PropertyDescriptor descriptor : descriptors){
                     if(descriptor.getName().equals(propertyName)){
-                        Object resolvedValue = resolver.resolveValueIfNecessary(originalValue, descriptor.getPropertyType());
+                        //将原始String转换为需要的基本数据类型
+                        Object convertedValue = converter.convertIfNecessary(resolvedValue, descriptor.getPropertyType());
                         //实质上就是调用bean的setter方法
-                        descriptor.getWriteMethod().invoke(bean, resolvedValue);
+                        descriptor.getWriteMethod().invoke(bean, convertedValue);
                         break;
                     }
                 }
