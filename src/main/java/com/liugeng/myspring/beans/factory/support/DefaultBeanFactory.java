@@ -9,6 +9,7 @@ import com.liugeng.myspring.beans.factory.BeanDefinitionStoreException;
 import com.liugeng.myspring.beans.factory.BeanFactory;
 import com.liugeng.myspring.beans.factory.config.ConfigurableBeanFactory;
 import com.liugeng.myspring.util.ClassUtils;
+import org.apache.commons.beanutils.BeanUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -81,6 +82,7 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
         Object bean = instantiateBean(bd);
         //进行bean的依赖注入
         populateBean(bd, bean);
+//        populateBeanUseCommonBeanUtils(bd, bean);
         return bean;
     }
 
@@ -133,6 +135,28 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
             return clazz.newInstance();
         } catch (Exception e) {
             throw new BeanCreationException("create bean for name: " + beanClassName + " failed, ", e);
+        }
+    }
+
+    private void populateBeanUseCommonBeanUtils(BeanDefinition bd, Object bean){
+        List<PropertyValue> propertyValues = bd.getPropertyValues();
+        if(propertyValues == null || propertyValues.isEmpty()){
+            return;
+        }
+        TypeConverter converter = new SimpleTypeConverter();
+        BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(this);
+        try {
+            //使用BeanUtils对bean的每个property实现setter注入
+            for(PropertyValue pv : propertyValues){
+                String propertyName = pv.getName();
+                Object originalValue = pv.getValue();
+                //得到解析后的值，具体引用或者原始String
+                Object resolvedValue = resolver.resolveValueIfNecessary(originalValue);
+                //通过BeanUtils将值装载到bean属性中，不需要自己实现TypeConvert
+                BeanUtils.setProperty(bean, propertyName, resolvedValue);
+            }
+        } catch (Exception e) {
+            throw new BeanCreationException("Failed to obtain BeanInfo for class [" + bd.getBeanClassName() + "]");
         }
     }
 
