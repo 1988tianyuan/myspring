@@ -1,13 +1,14 @@
 package com.liugeng.myspring.beans.factory.support;
 
 import com.liugeng.myspring.beans.TypeConverter;
+import com.liugeng.myspring.beans.factory.BeanFactory;
 import com.liugeng.myspring.beans.factory.config.RuntimeBeanReference;
 import com.liugeng.myspring.beans.factory.config.TypeStringValue;
 
 public class BeanDefinitionValueResolver {
-    private final DefaultBeanFactory factory;
+    private final BeanFactory factory;
 
-    public BeanDefinitionValueResolver(DefaultBeanFactory factory) {
+    public BeanDefinitionValueResolver(BeanFactory factory) {
         this.factory = factory;
     }
 

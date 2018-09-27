@@ -82,7 +82,7 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
         Object bean = instantiateBean(bd);
         //进行bean的依赖注入
         populateBean(bd, bean);
-//        populateBeanUseCommonBeanUtils(bd, bean);
+        //populateBeanUseCommonBeanUtils(bd, bean);
         return bean;
     }
 
@@ -128,14 +128,20 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry implements 
      * @return
      */
     private Object instantiateBean(BeanDefinition bd){
-        String beanClassName = bd.getBeanClassName();
-        try {
-            ClassLoader cl = getBeanClassLoader();
-            Class<?> clazz = cl.loadClass(beanClassName);
-            return clazz.newInstance();
-        } catch (Exception e) {
-            throw new BeanCreationException("create bean for name: " + beanClassName + " failed, ", e);
+        if(bd.hasConstructorArgumentValues()){
+            ConstructorResolver resolver = new ConstructorResolver(this);
+            return resolver.autowireConstructor(bd);
+        } else {
+            String beanClassName = bd.getBeanClassName();
+            try {
+                ClassLoader cl = getBeanClassLoader();
+                Class<?> clazz = cl.loadClass(beanClassName);
+                return clazz.newInstance();
+            } catch (Exception e) {
+                throw new BeanCreationException("create bean for name: " + beanClassName + " failed, ", e);
+            }
         }
+
     }
 
     private void populateBeanUseCommonBeanUtils(BeanDefinition bd, Object bean){

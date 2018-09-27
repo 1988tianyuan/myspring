@@ -27,7 +27,7 @@ public class ConstructorResolverTest {
     }
 
     @Test
-    public void testAutowireCOnstructor(){
+    public void testAutowireConstructor(){
         DefaultBeanFactory factory = new DefaultBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
         reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
