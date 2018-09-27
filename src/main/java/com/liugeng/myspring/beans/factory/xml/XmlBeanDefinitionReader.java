@@ -1,6 +1,7 @@
 package com.liugeng.myspring.beans.factory.xml;
 
 import com.liugeng.myspring.beans.BeanDefinition;
+import com.liugeng.myspring.beans.ConstructorArgument;
 import com.liugeng.myspring.beans.PropertyValue;
 import com.liugeng.myspring.beans.factory.BeanDefinitionStoreException;
 import com.liugeng.myspring.beans.factory.config.RuntimeBeanReference;
@@ -30,6 +31,8 @@ public class XmlBeanDefinitionReader {
     private static final String REF_ATTRIBUTE ="ref";
     private static final String VALUE_ATTRIBUTE = "value";
     private static final String NAME_ATTRIBUTE = "name";
+    private static final String TYPE_ATTRIBUTE = "type";
+    private static final String CONSTRUCTOR_ARG_ELEMENT = "constructor-arg";
     private BeanDefinitionRegister register;
 
     public XmlBeanDefinitionReader(BeanDefinitionRegister register) {
@@ -58,7 +61,8 @@ public class XmlBeanDefinitionReader {
                 if(scope != null) {
                     bd.setScope(scope);
                 }   //读取scope属性并存入beanDefinition中
-                parsePropertyValue(element, bd);
+                parseConstructorArgElements(element, bd); //解析构造函数参数
+                parsePropertyValue(element, bd);//解析需setter注入的属性参数
                 register.registerBeanDefinition(id, bd);
             }
         } catch (Exception e) {
@@ -74,8 +78,31 @@ public class XmlBeanDefinitionReader {
         }
     }
 
+    //解析当前ELement节点下的constructor-arg子节点
+    private void parseConstructorArgElements(Element element, BeanDefinition beanDefinition){
+        Iterator iterator = element.elementIterator(CONSTRUCTOR_ARG_ELEMENT);
+        while (iterator.hasNext()){
+            Element ele = (Element) iterator.next();
+            parseConstructorArgElement(ele, beanDefinition);
+        }
+    }
+    //进行解析constructor-arg子节点并作为构造函数参数存入BeanDefinition中
+    private void parseConstructorArgElement(Element element, BeanDefinition beanDefinition){
+        String nameAttr = element.attributeValue(NAME_ATTRIBUTE);
+        String typeAttr = element.attributeValue(TYPE_ATTRIBUTE);
+        Object value = parsePropertyValue(element, beanDefinition, null);
+        ConstructorArgument.ValueHolder valueHolder = new ConstructorArgument.ValueHolder(value);
+        if(StringUtils.hasLength(nameAttr)){
+            valueHolder.setName(nameAttr);
+        }
+        if(StringUtils.hasLength(typeAttr)){
+            valueHolder.setType(typeAttr);
+        }
+        beanDefinition.getConstructorArgument().addArgumentValue(valueHolder);
+    }
+
     //解析当前Element节点下面的property子节点，处理两种不同的propertyValue类型：ref和StringValue
-    public void parsePropertyValue(Element element, BeanDefinition beanDefinition) throws Exception{
+    private void parsePropertyValue(Element element, BeanDefinition beanDefinition){
         Iterator iterator = element.elementIterator(PROPERTY_ELEMENT);
         while (iterator.hasNext()){
             Element propElement = (Element) iterator.next();
@@ -94,14 +121,14 @@ public class XmlBeanDefinitionReader {
     }
 
     //解析property节点，处理两种不同的propertyValue类型：ref和StringValue
-    private Object parsePropertyValue (Element propElement, BeanDefinition beanDefinition, String propName) throws Exception{
+    private Object parsePropertyValue (Element propElement, BeanDefinition beanDefinition, String propName){
         String elementName = propName != null ? "<property> element for property '" + propName + "'" : "<constructor-arg> element";
         boolean hasRefAttribute = propElement.attribute(REF_ATTRIBUTE) != null;
         boolean hasValueAttribute = propElement.attribute(VALUE_ATTRIBUTE) != null;
 
         if(hasRefAttribute){
             String refName = propElement.attributeValue(REF_ATTRIBUTE);
-            if(StringUtils.hasText(refName)){
+            if(!StringUtils.hasText(refName)){
                 logger.fatal(elementName + " contains empty 'ref' attribute");
             }
             return new RuntimeBeanReference(refName);
@@ -109,7 +136,7 @@ public class XmlBeanDefinitionReader {
             String value = propElement.attributeValue(VALUE_ATTRIBUTE);
             return new TypeStringValue(value);
         } else {
-            throw new Exception(elementName + " must specify a ref or value");
+            throw new RuntimeException(elementName + " must specify a ref or value");
         }
     }
 
