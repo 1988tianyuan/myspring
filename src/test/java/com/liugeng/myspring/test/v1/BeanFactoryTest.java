@@ -1,13 +1,11 @@
 package com.liugeng.myspring.test.v1;
 
 import com.liugeng.myspring.beans.BeanDefinition;
-import com.liugeng.myspring.beans.BeansException;
 import com.liugeng.myspring.beans.factory.BeanCreationException;
 import com.liugeng.myspring.beans.factory.BeanDefinitionStoreException;
-import com.liugeng.myspring.beans.factory.BeanFactory;
 import com.liugeng.myspring.beans.factory.support.DefaultBeanFactory;
 import com.liugeng.myspring.beans.factory.xml.XmlBeanDefinitionReader;
-import com.liugeng.myspring.core.io.ClassPathXmlResource;
+import com.liugeng.myspring.core.io.ClassPathResource;
 import com.liugeng.myspring.core.io.Resource;
 import com.liugeng.myspring.service.v1.PetStoreService;
 import com.liugeng.myspring.util.ClassUtils;
@@ -17,7 +15,6 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
@@ -37,7 +34,7 @@ public class BeanFactoryTest {
 
     @Test
     public void testGetBean() throws FileNotFoundException {
-        Resource resource = new ClassPathXmlResource(paths.getProperty("classpath"));
+        Resource resource = new ClassPathResource(paths.getProperty("classpath"));
         reader.loadBeanDefinition(resource);
         BeanDefinition bd = factory.getBeanDefinition("petStore");
 
@@ -55,7 +52,7 @@ public class BeanFactoryTest {
 
     @Test
     public void testInvalidBean() {
-        Resource resource = new ClassPathXmlResource(paths.getProperty("classpath"));
+        Resource resource = new ClassPathResource(paths.getProperty("classpath"));
         reader.loadBeanDefinition(resource);
         try {
             factory.getBean("invalidBean");
@@ -68,7 +65,7 @@ public class BeanFactoryTest {
     @Test
     public void testInvalidBeanDefinition() {
         try {
-            Resource resource = new ClassPathXmlResource(paths.getProperty("classpath1"));
+            Resource resource = new ClassPathResource(paths.getProperty("classpath1"));
             reader.loadBeanDefinition(resource);
         } catch (BeanDefinitionStoreException e) {
             return;

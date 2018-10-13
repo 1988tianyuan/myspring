@@ -3,7 +3,6 @@ package com.liugeng.myspring.context.support;
 import com.liugeng.myspring.beans.factory.support.DefaultBeanFactory;
 import com.liugeng.myspring.beans.factory.xml.XmlBeanDefinitionReader;
 import com.liugeng.myspring.context.ApplicationContext;
-import com.liugeng.myspring.core.io.ClassPathXmlResource;
 import com.liugeng.myspring.core.io.Resource;
 import com.liugeng.myspring.util.ClassUtils;
 

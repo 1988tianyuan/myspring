@@ -4,7 +4,7 @@ import com.liugeng.myspring.beans.BeanDefinition;
 import com.liugeng.myspring.beans.factory.support.ConstructorResolver;
 import com.liugeng.myspring.beans.factory.support.DefaultBeanFactory;
 import com.liugeng.myspring.beans.factory.xml.XmlBeanDefinitionReader;
-import com.liugeng.myspring.core.io.ClassPathXmlResource;
+import com.liugeng.myspring.core.io.ClassPathResource;
 import com.liugeng.myspring.dao.v3.AccountDao;
 import com.liugeng.myspring.dao.v3.ItemDao;
 import com.liugeng.myspring.service.v3.PetStoreService;
@@ -30,7 +30,7 @@ public class ConstructorResolverTest {
     public void testAutowireConstructor(){
         DefaultBeanFactory factory = new DefaultBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
-        reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
+        reader.loadBeanDefinition(new ClassPathResource(paths.getProperty("classpath")));
         BeanDefinition beanDefinition = factory.getBeanDefinition("petStore");
 
         ConstructorResolver resolver = new ConstructorResolver(factory);

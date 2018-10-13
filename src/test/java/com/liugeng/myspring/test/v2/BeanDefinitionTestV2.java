@@ -2,11 +2,10 @@ package com.liugeng.myspring.test.v2;
 
 import com.liugeng.myspring.beans.BeanDefinition;
 import com.liugeng.myspring.beans.PropertyValue;
-import com.liugeng.myspring.beans.factory.BeanFactory;
 import com.liugeng.myspring.beans.factory.config.RuntimeBeanReference;
 import com.liugeng.myspring.beans.factory.support.DefaultBeanFactory;
 import com.liugeng.myspring.beans.factory.xml.XmlBeanDefinitionReader;
-import com.liugeng.myspring.core.io.ClassPathXmlResource;
+import com.liugeng.myspring.core.io.ClassPathResource;
 import com.liugeng.myspring.util.ClassUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,7 +29,7 @@ public class BeanDefinitionTestV2 {
     public void testGetBeanDefinition() throws Exception{
         DefaultBeanFactory factory = new DefaultBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
-        reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
+        reader.loadBeanDefinition(new ClassPathResource(paths.getProperty("classpath")));
         BeanDefinition beanDefinition = factory.getBeanDefinition("petStore");
 
         List<PropertyValue> propertyValueList = beanDefinition.getPropertyValues();

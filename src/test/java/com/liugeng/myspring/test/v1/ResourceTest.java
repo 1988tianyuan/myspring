@@ -1,6 +1,6 @@
 package com.liugeng.myspring.test.v1;
 
-import com.liugeng.myspring.core.io.ClassPathXmlResource;
+import com.liugeng.myspring.core.io.ClassPathResource;
 import com.liugeng.myspring.core.io.FileSystemResource;
 import com.liugeng.myspring.util.ClassUtils;
 import org.junit.Assert;
@@ -23,7 +23,7 @@ public class ResourceTest {
 
     @Test
     public void classPathXmlResourceTest() throws IOException {
-        ClassPathXmlResource resource = new ClassPathXmlResource(paths.getProperty("classpath"));
+        ClassPathResource resource = new ClassPathResource(paths.getProperty("classpath"));
         InputStream is = null;
         try{
             is = resource.getInputStream();

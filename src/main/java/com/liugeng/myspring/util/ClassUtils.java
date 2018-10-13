@@ -13,6 +13,11 @@ public class ClassUtils {
      * 通过包装类型获取基本数据类型， for example: Integer.class -> int.class.
      */
     private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(8);
+    private static final char PACKAGE_SEPARATOR = '.';
+    private static final char PATH_SEPARATOR = '/';
+    private static final char INNER_CLASS_SEPARATOR = '$';
+    public static final String CGLIB_CLASS_SEPARATOR = "$$";
+
 
     static {
         primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
@@ -80,5 +85,26 @@ public class ClassUtils {
             }
         }
         return false;
+    }
+
+    public static String convertClassNameToResourcePath(String className) {
+        Assert.notNull(className, "className should not be null");
+        return className.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
+    }
+
+    public static String convertResourcePathtoClassName(String resourcePath) {
+        Assert.notNull(resourcePath, "className should not be null");
+        return resourcePath.replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);
+    }
+
+    public static String getShortName(String className){
+        int lastDotIndex = className.lastIndexOf(PACKAGE_SEPARATOR);
+        int nameEndIndex = className.indexOf(CGLIB_CLASS_SEPARATOR);
+        if(nameEndIndex == -1){
+            nameEndIndex = className.length();
+        }
+        String shortName = className.substring(lastDotIndex+1, nameEndIndex);
+        shortName = shortName.replace(INNER_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+        return shortName;
     }
 }

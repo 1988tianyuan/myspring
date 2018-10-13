@@ -5,15 +5,15 @@ import com.liugeng.myspring.util.ClassUtils;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class ClassPathXmlResource implements Resource{
+public class ClassPathResource implements Resource{
     private String classPath;
     private ClassLoader loader;
 
-    public ClassPathXmlResource(String classPath) {
+    public ClassPathResource(String classPath) {
         this(classPath, (ClassLoader)null);
     }
 
-    public ClassPathXmlResource(String classPath, ClassLoader loader) {
+    public ClassPathResource(String classPath, ClassLoader loader) {
         this.classPath = classPath;
         this.loader = loader != null ? loader : ClassUtils.getDefaultClassLoader();
     }

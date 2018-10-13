@@ -1,14 +1,12 @@
 package com.liugeng.myspring.test.v2;
 
 
-import com.liugeng.myspring.beans.SimpleTypeConverter;
-import com.liugeng.myspring.beans.TypeConverter;
 import com.liugeng.myspring.beans.factory.config.RuntimeBeanReference;
 import com.liugeng.myspring.beans.factory.config.TypeStringValue;
 import com.liugeng.myspring.beans.factory.support.BeanDefinitionValueResolver;
 import com.liugeng.myspring.beans.factory.support.DefaultBeanFactory;
 import com.liugeng.myspring.beans.factory.xml.XmlBeanDefinitionReader;
-import com.liugeng.myspring.core.io.ClassPathXmlResource;
+import com.liugeng.myspring.core.io.ClassPathResource;
 import com.liugeng.myspring.dao.v2.AccountDao;
 import com.liugeng.myspring.util.ClassUtils;
 import org.junit.Assert;
@@ -32,7 +30,7 @@ public class BeanDefinitionValueResolverTest {
     public void resolveRuntimeBeanReference() throws Exception{
         DefaultBeanFactory factory = new DefaultBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
-        reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
+        reader.loadBeanDefinition(new ClassPathResource(paths.getProperty("classpath")));
 
         //将BeanFactory装载到resolver中，使其可以将某个PropertyValue的value引用直接转换为具体的Bean引用
         BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(factory);
@@ -46,7 +44,7 @@ public class BeanDefinitionValueResolverTest {
     public void resolveTypeStringValue() throws Exception{
         DefaultBeanFactory factory = new DefaultBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
-        reader.loadBeanDefinition(new ClassPathXmlResource(paths.getProperty("classpath")));
+        reader.loadBeanDefinition(new ClassPathResource(paths.getProperty("classpath")));
 
         BeanDefinitionValueResolver resolver = new BeanDefinitionValueResolver(factory);
         TypeStringValue stringValue = new TypeStringValue("test");
